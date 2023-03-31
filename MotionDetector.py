@@ -5,15 +5,15 @@ import os
 
 # Specific path for saving images. Images will be saved to current directory script is run in
 # This pathway bypasses permission issues with work laptop
-os.chdir(
-    "C:/Users/cnuenthe/OneDrive - State of North Dakota/Desktop/MotionTrack")
+#os.chdir(
+#    "C:/Users/cnuenthe/OneDrive - State of North Dakota/Desktop/MotionTrack")
 
 # Initialize the camera
 cap = cv2.VideoCapture(1)
 
 # Set image resolution
-cap.set(3, 1920)
-cap.set(4, 1080)
+cap.set(3, 640)
+cap.set(4, 480)
 
 # Capture a reference frame without any motion
 _, ref_frame = cap.read()
@@ -51,10 +51,10 @@ while True:
             time.sleep(2)
             _, frame = cap.read()  
         
-        	# Generate a unique filename using the timestamp
+            # Generate a unique filename using the timestamp
             file_name = time.strftime("%Y%m%d-%H%M%S") + ".jpg"
 
-        	# Save the current frame to the file
+            # Save the current frame to the file
             cv2.imwrite(f"SavedImages/{file_name}.jpg", frame)
 
         # Wait for some time before repeating the loop
