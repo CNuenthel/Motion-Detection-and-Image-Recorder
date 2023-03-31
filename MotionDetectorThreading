@@ -1,0 +1,64 @@
+import cv2
+import time
+import os
+import threading
+
+class ImageCaptureThread(threading.Thread):
+    def __init__(self, cam, filename):
+        threading.Thread.__init__(self)
+        self.cam = cam
+        self.filename = filename
+
+    def run(self):
+        # read the current frame from the webcam
+        ret, frame = self.cam.read()
+        # save the current frame to disk
+        cv2.imwrite(self.filename, frame)
+
+# initialize the webcam and start the stream
+cam = cv2.VideoCapture(0)
+time.sleep(2)
+
+# initialize motion detection parameters
+motion_threshold = 100000
+last_frame = None
+
+# loop indefinitely
+while True:
+    # read the current frame from the webcam
+    ret, frame = cam.read()
+
+    # if there's an error reading the frame, break out of the loop
+    if not ret:
+        break
+
+    # if this is the first frame, initialize the last_frame variable
+    if last_frame is None:
+        last_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        continue
+
+    # calculate the difference between the current and last frames
+    current_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    frame_diff = cv2.absdiff(current_frame, last_frame)
+
+    # if the difference exceeds the threshold, motion is detected
+    if cv2.countNonZero(frame_diff) > motion_threshold:
+        # take pictures every 2 seconds for a total of 4 seconds
+        for i in range(4):
+            # capture the current frame and save it to disk
+            filename = f"motion-{time.time()}.jpg"
+            image_capture_thread = ImageCaptureThread(cam, filename)
+            image_capture_thread.start()
+
+            # wait for 2 seconds before capturing the next frame
+            time.sleep(2)
+
+        # wait for 20 seconds before continuing the loop
+        time.sleep(20)
+
+    # update the last frame variable
+    last_frame = current_frame
+
+# release the webcam and exit the program
+cam.release()
+cv2.destroyAllWindows()
